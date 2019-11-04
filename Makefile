@@ -1,6 +1,6 @@
 COMP = g++ 
 LDLIBS = -lm 
-OBJS = hello.o
+OBJS =
 HEADERS = 
 
 main : main.o $(OBS)
@@ -8,9 +8,6 @@ main : main.o $(OBS)
 
 main.o : main.cpp $(HEADERS)
 	$(COMP) $(CCFLAG) -c main.cpp
-
-hello.o : hello.cpp $(HEADERS)
-	$(COMP) -c hello.cpp
 
 clean: 
 	rm *.o
