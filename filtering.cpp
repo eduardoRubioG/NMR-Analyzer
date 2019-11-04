@@ -87,7 +87,8 @@ void nmrFilter( Data& data, Options& options ){
         //Boxcar
         case 1:
             if( size == 0 ) printf("Boxcar method with filter size 0 requested; Filtering is, in essence, off");
-            for( int i = 0; i < options.filterPasses; i++ ) boxcar(data, size);
+            for( int i = 0; i < options.filterPasses; i++ ) 
+                boxcar(data, size);
             break;
         // Invalid option 
         default :

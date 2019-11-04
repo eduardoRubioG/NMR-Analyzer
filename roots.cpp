@@ -73,11 +73,4 @@ void findIntersections( Spline spline ){
             newPeak = !newPeak;
         }
     }
-    for( int i = 0; i < peaks.size(); i++ ){
-        file << peaks[i].rootA << ' ' << options.baseline << std::endl;
-        file << peaks[i].rootB << ' ' << options.baseline << std::endl;
-//        printf("PEAK %d\n", i+1);
-//        peaks[i].print();
-//        printf("\n\n\n");
-    }
 }

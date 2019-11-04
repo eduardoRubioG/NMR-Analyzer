@@ -121,4 +121,5 @@ void outputAnalysis( ) {
         printElement(tmp.hydrogens, 8, ' ', file);
         file << std::endl;
     }
+    file << std::fixed << "\nAnalysis took " << ((float)options.time)/CLOCKS_PER_SEC << " seconds\n" << std::endl;
 }

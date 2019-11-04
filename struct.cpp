@@ -59,6 +59,7 @@ struct Options {
     int filterSize;
     int filterPasses;
     int integrationType;
+    clock_t time; 
 };
 
 /**
