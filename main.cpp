@@ -55,6 +55,7 @@ int main(int argc, const char * argv[]) {
     findHydrogens();
 
     // Print out program findings
+    options.time = clock() - options.time; 
     outputAnalysis();
     system("cat analysis.txt");
     return 0;
