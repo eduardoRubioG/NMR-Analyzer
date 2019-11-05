@@ -57,6 +57,5 @@ int main(int argc, const char * argv[]) {
     // Print out program findings
     outputAnalysis();
     system("cat analysis.txt");
-    
     return 0;
 }

@@ -65,7 +65,7 @@ template<typename T> void printSciNum( T t, const int& width, std::ofstream& fil
  */
 void outputAnalysis( ) {
     
-    std::ofstream file( options.out_filename );
+    std::ofstream file( options.out_filename.c_str() );
     file << std::setprecision (std::numeric_limits<double>::digits10 + 1);
     file << "============================" << std::endl;
     file << "N M R  I N T E R P R E T E R" << std::endl;

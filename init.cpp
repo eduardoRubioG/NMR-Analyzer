@@ -12,6 +12,16 @@
 #include <sstream>
 #include <algorithm>
 
+/** 
+ * Essentially a stoi / stod function since Mercer won't update to c++11 :'((
+ */
+template<typename T> T stringToType( const std::string& str ){ 
+    T toReturn; 
+    std::stringstream ss( str ); 
+    ss >> toReturn; 
+    return toReturn; 
+}
+
 /**
  * readOptions:
  * filename:The string representation of the options file provided by the user
@@ -19,21 +29,20 @@
 Options readOptions( const std::string filename ){
     using namespace std;
     Options options;
-    std::stringstream ss;
     std::ifstream file( filename.c_str() );
     if( !file.good() ){
         printf("Error opening file \"%s\". Quitting program...\n", filename.c_str());
         exit( 1 );
     }
+
     std::string buffer;
-    
     getline( file, buffer ); options.in_filename = buffer;
-    getline( file, buffer ); options.baseline = stod(buffer);
-    getline( file, buffer ); options.tol = stod(buffer);
-    getline( file, buffer ); options.filterType = stoi(buffer);
-    getline( file, buffer ); options.filterSize = stoi(buffer);
-    getline( file, buffer ); options.filterPasses = stoi(buffer);
-    getline( file, buffer ); options.integrationType = stoi(buffer);
+    getline( file, buffer ); options.baseline = stringToType<double>(buffer);
+    getline( file, buffer ); options.tol = stringToType<double>(buffer);
+    getline( file, buffer ); options.filterType = stringToType<int>(buffer);
+    getline( file, buffer ); options.filterSize = stringToType<int>(buffer);
+    getline( file, buffer ); options.filterPasses = stringToType<int>(buffer);
+    getline( file, buffer ); options.integrationType = stringToType<int>(buffer);
     getline( file, buffer ); options.out_filename = buffer;
     
     return options;
