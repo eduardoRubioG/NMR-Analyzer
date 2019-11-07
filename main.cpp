@@ -19,17 +19,12 @@
 using namespace std;
 int main(int argc, const char * argv[]) {
     
-    // Check to make sure there are a correct amount of arguments made in the command line 
-    if( argc < 2 ){
-        printf("Error: Insufficient arguments provided in the command line. Please make sure you call the executable with the data file name following. Quitting..."); 
-        exit( 1 );
-    }
     system( "clear" );
 
     // Read in the data from the command line specified file as well as program options from
     // the nmr.in file
-    data = readData( argv[1] );
     options = readOptions("nmr.in");
+    data = readData( options.in_filename );
     
     // Note time in order to calculate analysis time 
     options.time = clock( ); 
