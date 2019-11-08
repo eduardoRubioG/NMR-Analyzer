@@ -36,7 +36,7 @@ void populateSpline( const Data& data, const Spline spline ){
     std::ofstream out( "spline.dat" );
     int splinepoints = 15;
     int n = data.n;
-    for (int i = 0; i < n-1; i++){
+    for (int i = 0; i < n-2; i++){
         double delta = (data.x[i+1] - data.x[i])/splinepoints;
         for ( int j = 1; j <= splinepoints; j++ ){
             out
