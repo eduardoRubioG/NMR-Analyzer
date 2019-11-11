@@ -25,7 +25,7 @@ int main(int argc, const char * argv[]) {
     // the nmr.in file
     options = readOptions("nmr.in");
     data = readData( options.in_filename );
-    
+ 
     // Note time in order to calculate analysis time 
     options.time = clock( ); 
 
@@ -53,5 +53,6 @@ int main(int argc, const char * argv[]) {
     options.time = clock() - options.time; 
     outputAnalysis();
     system("cat analysis.txt");
+
     return 0;
 }

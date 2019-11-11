@@ -13,7 +13,7 @@
 /**
  * Writes out the data points inside the Data object. Useful after filtering original data.
  */
-void dataToFile( const std::string outfile, Data data ){
+void dataToFile( const std::string outfile, const Data& data ){
     std::ofstream file( outfile.c_str() );
     const int n = data.n;
     for( int i = 0; i < n; i++ )
@@ -33,6 +33,16 @@ double f(double x,double a, double b, double c, double d){
  *  b, c, d - the spline coefficients calculated with the spline function
  */
 void populateSpline( const Data& data, const Spline spline ){
+    /*using namespace std; 
+    std::ofstream out( "spline.dat" );
+    int splinepoints = 15;
+    int n = data.n; 
+    cout << "Popuate Spline > size of n: " << n << endl; 
+
+    for( int i = 0; i < n; i++ ){ 
+	for( int j = 0; j < 
+    }*/
+    using namespace std; 
     std::ofstream out( "spline.dat" );
     int splinepoints = 15;
     int n = data.n;

@@ -248,7 +248,7 @@ void integratePeaks( ){
         double sum = 0;
         Peak tmp = peaks[ peakID ];
         // If peak bound by domain
-        if( !tmp.isCompete ){
+        if( !tmp.isComplete ){
             tmp.indexB = data.x.size();
             tmp.rootB = data.x[ tmp.indexB ];
         }

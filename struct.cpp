@@ -17,9 +17,16 @@
  * n: an int representing the how many x-y value pairs exist in the struct
  */
 struct Data {
+    // Add constructor here 
     std::vector<double> x;
     std::vector<double> y;
-    int n = 0; 
+    int n; 
+ 
+    // Constructor 
+    Data( ) : n(0) {} 
+
+    // Destructor 
+    ~Data( ) { printf("Goodbye\n"); } 
 };
 
 /**
@@ -79,9 +86,12 @@ struct Peak {
     double rootB;
     double midpoint;
     double manifold;
-    bool isCompete = false;
+    bool isComplete;
     int hydrogens; 
     
+    // Constructor
+    Peak( ) : isComplete(false) {}
+
     void print( ){
         printf("idxA: %d\nidxB: %d\n rootA: %f\nrootB: %f\n", indexA, indexB, rootA, rootB);
     }

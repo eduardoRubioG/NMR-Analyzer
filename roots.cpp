@@ -66,7 +66,7 @@ void findIntersections( Spline spline ){
             } else {
                 peak.rootB = bisection(data.x[ i ], data.x[ i + 1 ], options.tol, 100, spline, i );
                 peak.indexB = i;
-                peak.isCompete = true;
+                peak.isComplete = true;
                 peak.midpoint = (peak.rootB + peak.rootA)/2; 
                 peaks.push_back( peak );
             }
