@@ -24,9 +24,6 @@ struct Data {
  
     // Constructor 
     Data( ) : n(0) {} 
-
-    // Destructor 
-    ~Data( ) { printf("Goodbye\n"); } 
 };
 
 /**
