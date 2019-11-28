@@ -33,20 +33,11 @@ double f(double x,double a, double b, double c, double d){
  *  b, c, d - the spline coefficients calculated with the spline function
  */
 void populateSpline( const Data& data, const Spline spline ){
-    /*using namespace std; 
-    std::ofstream out( "spline.dat" );
-    int splinepoints = 15;
-    int n = data.n; 
-    cout << "Popuate Spline > size of n: " << n << endl; 
 
-    for( int i = 0; i < n; i++ ){ 
-	for( int j = 0; j < 
-    }*/
-    using namespace std; 
     std::ofstream out( "spline.dat" );
     int splinepoints = 15;
     int n = data.n;
-    for (int i = 0; i < n-2; i++){
+    for (int i = 0; i < n-1; i++){
         double delta = (data.x[i+1] - data.x[i])/splinepoints;
         for ( int j = 1; j <= splinepoints; j++ ){
             out
@@ -67,7 +58,7 @@ template<typename T> void printElement(T t, const int& width, const char& fill, 
 }
 
 template<typename T> void printSciNum( T t, const int& width, std::ofstream& file ){
-    file << std::scientific << std::setw(width) << std::setfill(' ') << t;
+    file << std::setprecision(16)/*std::scientific*/ << std::setw(width) << std::setfill(' ') << t;
 }
 
 /**
@@ -111,7 +102,7 @@ void outputAnalysis( ) {
     file << "File: " << options.out_filename << std::endl;
     file << "Plot Shifted " << TMSadjustment << " ppm for TMS calibration" << std::endl;
     file << std::endl;
-
+    
     printElement("Peak", 8, ' ', file);
     printElement("Begin", 25, ' ', file);
     printElement("End", 25, ' ', file);
@@ -124,8 +115,8 @@ void outputAnalysis( ) {
     for( int i = 0; i < peaks.size(); i++ ){
         Peak tmp = peaks[i];
         printElement(i+1, 8, ' ', file);
-        printSciNum(tmp.rootA, 25, file);
         printSciNum(tmp.rootB, 25, file);
+        printSciNum(tmp.rootA, 25, file);
         printSciNum(tmp.midpoint, 25, file);
         printSciNum(tmp.manifold, 25, file);
         printElement(tmp.hydrogens, 8, ' ', file);

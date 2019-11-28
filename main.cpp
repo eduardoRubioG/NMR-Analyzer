@@ -9,50 +9,49 @@
 #include <iostream>
 #include "struct.cpp"
 #include "include.cpp"
-#include "globals.cpp"
+#include "globals.h"
 #include "init.cpp"
 #include "output.cpp"
 #include "filtering.cpp"
 #include "spline.cpp"
 #include "roots.cpp"
 #include "integration.cpp"
-using namespace std;
+//using namespace std;
 int main(int argc, const char * argv[]) {
     
     system( "clear" );
-
+    
     // Read in the data from the command line specified file as well as program options from
     // the nmr.in file
-    options = readOptions("nmr.in");
-    data = readData( options.in_filename );
- 
-    // Note time in order to calculate analysis time 
-    options.time = clock( ); 
-
+    init();
+    
+    // Note time in order to calculate analysis time
+    options.time = clock( );
+    
     // Adjust the data for the TMS peak
-    peakAdjustment(data);
+    peakAdjustment(_data); //good
     
     // Filter the data in accordance to the user specified options
-    nmrFilter(data, options);
+    nmrFilter(_data, options); //good
     
     //Export filtered data to "filter.txt"
-    dataToFile("filter.txt", data);
+    dataToFile("filter.txt", _data); //good
     
     // Generate the spline coefficients and export spline curve data to "spline.dat"
-    spline(data, splineCo);
-    populateSpline(data, splineCo);
+    spline(_data, splineCo);
+    populateSpline(_data, splineCo); // good
     
     // Find all intersections the spline curve has with the baseline and store peaks
-    findIntersections(splineCo);
+    findIntersections(splineCo);// good 
     
     // Integrate the peaks and compute hydrogen counts
-    integratePeaks();
-    findHydrogens();
-
+    integratePeaks(); // good ?
+    findHydrogens(); // good ? 
+    
     // Print out program findings
-    options.time = clock() - options.time; 
+    options.time = clock() - options.time;
     outputAnalysis();
     system("cat analysis.txt");
-
+    
     return 0;
 }

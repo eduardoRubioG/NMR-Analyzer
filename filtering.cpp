@@ -59,12 +59,12 @@ void savitzkyGolay( Data& data, int SG[], int C, int size ){
 
 /**
  * Handler for filter options in the NMR analyzer
- * Dependent on the options file the user inputs 
+ * Dependent on the options file the user inputs
  */
-void nmrFilter( Data& data, Options& options ){
+void nmrFilter( Data& data, const Options& options ){
     int size = options.filterSize;
     switch (options.filterType) {
-        //Savitzky-Golay
+            //Savitzky-Golay
         case 2:
             switch (size) {
                 case 5  :
@@ -84,13 +84,13 @@ void nmrFilter( Data& data, Options& options ){
                     break;
             }
             break;
-        //Boxcar
+            //Boxcar
         case 1:
             if( size == 0 ) printf("Boxcar method with filter size 0 requested; Filtering is, in essence, off");
-            for( int i = 0; i < options.filterPasses; i++ ) 
+            for( int i = 0; i < options.filterPasses; i++ )
                 boxcar(data, size);
             break;
-        // Invalid option 
+            // Invalid option
         default :
             printf("User has requested no filtering");
             break;
