@@ -21,7 +21,7 @@ void spline( const Data& data, Spline& spline ){
     double l[ n ];
     double mu[ n ];
     double z[ n ];
-    spline.resize( data.n );
+    spline.resize( n );
     
     //Step one:
     for( int i = 0; i <= (n-1); i++ ){

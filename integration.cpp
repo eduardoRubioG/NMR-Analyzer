@@ -24,20 +24,20 @@ double adaptiveQuadrature( double x0, double x1, int splindex ){
     tol[i] = 10 * TOL;
     a[i] = x0;
     h[i] = (x1-x0)/2;
-    fa[i] = f( x0 - data.x[ splindex ],
-               data.y[ splindex ],
-               splineCo.B[ splindex ],
-               splineCo.C[ splindex ],
-               splineCo.D[ splindex ]
-               );
-    fc[i] = f(x0 + h[i] - data.x[ splindex ],
-              data.y[ splindex ],
+    fa[i] = f( x0 - _data.x[ splindex ],
+              _data.y[ splindex ] - options.baseline,
               splineCo.B[ splindex ],
               splineCo.C[ splindex ],
               splineCo.D[ splindex ]
               );
-    fb[i] = f( x1 - data.x[ splindex ],
-              data.y[ splindex ],
+    fc[i] = f(x0 + h[i] - _data.x[ splindex ],
+              _data.y[ splindex ] - options.baseline,
+              splineCo.B[ splindex ],
+              splineCo.C[ splindex ],
+              splineCo.D[ splindex ]
+              );
+    fb[i] = f( x1 - _data.x[ splindex ],
+              _data.y[ splindex ] - options.baseline,
               splineCo.B[ splindex ],
               splineCo.C[ splindex ],
               splineCo.D[ splindex ]);
@@ -46,13 +46,13 @@ double adaptiveQuadrature( double x0, double x1, int splindex ){
     // Step 2
     while (i>-1){
         // Step 3
-        fd = f((a[i] + h[i]/2)-data.x[ splindex],
-               data.y[ splindex ],
+        fd = f((a[i] + h[i]/2)- _data.x[ splindex],
+               _data.y[ splindex ] - options.baseline,
                splineCo.B[ splindex ],
                splineCo.C[ splindex ],
                splineCo.D[ splindex ]);
-        fe = f((a[i] + 3*h[i]/2) - data.x[ splindex ],
-               data.y[ splindex ],
+        fe = f((a[i] + 3*h[i]/2) - _data.x[ splindex ],
+               _data.y[ splindex ] - options.baseline,
                splineCo.B[ splindex ],
                splineCo.C[ splindex ],
                splineCo.D[ splindex ]);
@@ -84,7 +84,7 @@ double adaptiveQuadrature( double x0, double x1, int splindex ){
                 tol[i] = v6/2;
                 s[i] = s2;
                 l[i] = v8+1;
-
+                
                 i++;
                 a[i] = v1;
                 fa[i] = v2;
@@ -106,31 +106,31 @@ double romberg( double a, double b, int splindex ){
     double h  = b - a;
     std::vector<std::vector<double> > R( n , std::vector<double> (n, 0));
     // Step 1
-    double fa = f( a - data.x[ splindex ],
-                   data.y[ splindex ],
-                   splineCo.B[ splindex ],
-                   splineCo.C[ splindex ],
-                   splineCo.D[ splindex ]
+    double fa = f( a - _data.x[ splindex ],
+                  _data.y[ splindex ] - options.baseline,
+                  splineCo.B[ splindex ],
+                  splineCo.C[ splindex ],
+                  splineCo.D[ splindex ]
                   );
-    double fb = f( b - data.x[ splindex ],
-                  data.y[ splindex ],
+    double fb = f( b - _data.x[ splindex ],
+                  _data.y[ splindex ]- options.baseline,
                   splineCo.B[ splindex ],
                   splineCo.C[ splindex ],
                   splineCo.D[ splindex ]
                   );
     R[0][0] = (h/2) * (fa+fb);
-
+    
     // Step 3
     for (int i = 1; i<n;i++) {
         // Step 4
         double sum = 0;
         for( int k = 1; k <= (pow(2, i-1)); k++ )
-            sum += f( (a + (k-0.5)*h) - data.x[ splindex ],
-                        data.y[ splindex ],
-                        splineCo.B[ splindex ],
-                        splineCo.C[ splindex ],
-                        splineCo.D[ splindex ]
-                        );
+            sum += f( (a + (k-0.5)*h) - _data.x[ splindex ],
+                     _data.y[ splindex ]- options.baseline,
+                     splineCo.B[ splindex ],
+                     splineCo.C[ splindex ],
+                     splineCo.D[ splindex ]
+                     );
         R[1][0] = 0.5 * ( R[0][0] + h * sum );
         // Step 5
         for( int j = 1; j <= i; j++ )
@@ -149,30 +149,30 @@ double compositeSimsons( double a, double b, int splindex ){
     int n = 10;
     double h = (b-a)/n;
     double x, xi;
-    double xi0 = f(a - data.x[ splindex ],
-                   data.y[ splindex ],
+    double xi0 = f(a - _data.x[ splindex ],
+                   _data.y[ splindex ] - options.baseline,
                    splineCo.B[ splindex ],
                    splineCo.C[ splindex ],
                    splineCo.D[ splindex ]
                    )
-                + f(b - data.x[ splindex ],
-                    data.y[ splindex ],
-                    splineCo.B[ splindex ],
-                    splineCo.C[ splindex ],
-                    splineCo.D[ splindex ]
-                );
+    + f(b - _data.x[ splindex ],
+        _data.y[ splindex ] - options.baseline,
+        splineCo.B[ splindex ],
+        splineCo.C[ splindex ],
+        splineCo.D[ splindex ]
+        );
     double xi1 = 0;
     double xi2 = 0;
     for( int i = 1; i <= (n-1); i++ ){
         x = a + i*h;
-        if( i % 2 == 0 ) xi2 = xi2 + f( x - data.x[ splindex ],
-                                       data.y[ splindex ],
+        if( i % 2 == 0 ) xi2 = xi2 + f( x - _data.x[ splindex ],
+                                       _data.y[ splindex ] - options.baseline,
                                        splineCo.B[ splindex ],
                                        splineCo.C[ splindex ],
                                        splineCo.D[ splindex ]
                                        );
-        else xi1 = xi1 + f(x - data.x[ splindex ],
-                           data.y[ splindex ],
+        else xi1 = xi1 + f(x - _data.x[ splindex ],
+                           _data.y[ splindex ] - options.baseline,
                            splineCo.B[ splindex ],
                            splineCo.C[ splindex ],
                            splineCo.D[ splindex ]
@@ -220,8 +220,8 @@ double gaussLaguerre( double a, double b, int splindex ){
     };
     double sum = 0.0;
     for( int i = 0; i <= 15; i++ ){
-        sum += W15[i] * f(((b-a)*X15[i]+(b+a))/2.0 - data.x[ splindex ],
-                          data.y[ splindex ],
+        sum += W15[i] * f(((b-a)*X15[i]+(b+a))/2.0 - _data.x[ splindex ],
+                          _data.y[ splindex ] - options.baseline,
                           splineCo.B[ splindex ],
                           splineCo.C[ splindex ],
                           splineCo.D[ splindex ]
@@ -248,38 +248,38 @@ void integratePeaks( ){
         double sum = 0;
         Peak tmp = peaks[ peakID ];
         // If peak bound by domain
-        if( !tmp.isCompete ){
-            tmp.indexB = data.x.size();
-            tmp.rootB = data.x[ tmp.indexB ];
+        if( !tmp.isComplete ){
+            tmp.indexB = _data.x.size();
+            tmp.rootB = _data.x[ tmp.indexB ];
         }
         switch( options.integrationType ) {
                 
             case 0: //Adaptive Quadrature
-                sum += adaptiveQuadrature(  tmp.rootA, data.x[ tmp.indexA + 1 ], tmp.indexA );
+                sum += adaptiveQuadrature(  tmp.rootA, _data.x[ tmp.indexA + 1 ], tmp.indexA );
                 for( int j = tmp.indexA + 1; j < tmp.indexB; j++ )
-                    sum += adaptiveQuadrature(data.x[ j ], data.x[ j + 1 ], j );
-                sum += adaptiveQuadrature( data.x[ tmp.indexB ], tmp.rootB, tmp.indexB );
+                    sum += adaptiveQuadrature(_data.x[ j ], _data.x[ j + 1 ], j );
+                sum += adaptiveQuadrature( _data.x[ tmp.indexB ], tmp.rootB, tmp.indexB );
                 break;
                 
             case 1: // Romberg
-                sum += romberg(  tmp.rootA, data.x[ tmp.indexA + 1 ], tmp.indexA );
+                sum += romberg(  tmp.rootA, _data.x[ tmp.indexA + 1 ], tmp.indexA );
                 for( int j = tmp.indexA + 1; j < tmp.indexB; j++ )
-                    sum += romberg(data.x[ j ], data.x[ j + 1 ], j );
-                sum += romberg( data.x[ tmp.indexB ], tmp.rootB, tmp.indexB );
+                    sum += romberg(_data.x[ j ], _data.x[ j + 1 ], j );
+                sum += romberg( _data.x[ tmp.indexB ], tmp.rootB, tmp.indexB );
                 break;
-
+                
             case 2: //Gaussian Laguerre
-                sum += gaussLaguerre(  tmp.rootA, data.x[ tmp.indexA + 1 ], tmp.indexA );
+                sum += gaussLaguerre(  tmp.rootA, _data.x[ tmp.indexA + 1 ], tmp.indexA );
                 for( int j = tmp.indexA + 1; j < tmp.indexB; j++ )
-                    sum += gaussLaguerre(data.x[ j ], data.x[ j + 1 ], j );
-                sum += gaussLaguerre( data.x[ tmp.indexB ], tmp.rootB, tmp.indexB );
+                    sum += gaussLaguerre(_data.x[ j ], _data.x[ j + 1 ], j );
+                sum += gaussLaguerre( _data.x[ tmp.indexB ], tmp.rootB, tmp.indexB );
                 break;
                 
             case 3: //Composite Simpson's
-                sum += compositeSimsons(  tmp.rootA, data.x[ tmp.indexA + 1 ], tmp.indexA );
+                sum += compositeSimsons(  tmp.rootA, _data.x[ tmp.indexA + 1 ], tmp.indexA );
                 for( int j = tmp.indexA + 1; j < tmp.indexB; j++ )
-                    sum += compositeSimsons(data.x[ j ], data.x[ j + 1 ], j );
-                sum += compositeSimsons( data.x[ tmp.indexB ], tmp.rootB, tmp.indexB );
+                    sum += compositeSimsons(_data.x[ j ], _data.x[ j + 1 ], j );
+                sum += compositeSimsons( _data.x[ tmp.indexB ], tmp.rootB, tmp.indexB );
                 break;
                 
             default:
@@ -291,13 +291,12 @@ void integratePeaks( ){
 }
 
 /**
- * Iterate through the now fully calculated peaks and find hydrogen values 
+ * Iterate through the now fully calculated peaks and find hydrogen values
  */
 void findHydrogens( ){
     double min_area = __DBL_MAX__;
     for( int i = 0; i < peaks.size(); i++ )
-        if( peaks[i].manifold < min_area )
-            min_area = peaks[i].manifold;
+        min_area = fmin( min_area, peaks[i].manifold);
     for( int i = 0; i < peaks.size(); i++ )
         peaks[i].hydrogens = peaks[i].manifold / min_area;
 }

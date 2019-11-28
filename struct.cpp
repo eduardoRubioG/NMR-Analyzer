@@ -6,8 +6,10 @@
 //  Copyright © 2019 Eduardo Rubio. All rights reserved.
 //
 
+#ifndef struct_cpp
+#define struct_cpp
 #include <stdio.h>
-#include <vector> 
+#include <vector>
 
 /**
  * Data Struct:
@@ -17,9 +19,13 @@
  * n: an int representing the how many x-y value pairs exist in the struct
  */
 struct Data {
+    // Add constructor here
     std::vector<double> x;
     std::vector<double> y;
-    int n = 0; 
+    int n;
+    
+    // Constructor
+    Data( ) : n(0) {}
 };
 
 /**
@@ -59,7 +65,7 @@ struct Options {
     int filterSize;
     int filterPasses;
     int integrationType;
-    clock_t time; 
+    clock_t time;
 };
 
 /**
@@ -79,11 +85,14 @@ struct Peak {
     double rootB;
     double midpoint;
     double manifold;
-    bool isCompete = false;
-    int hydrogens; 
+    bool isComplete;
+    int hydrogens;
+    
+    // Constructor
+    Peak( ) : isComplete(false) {}
     
     void print( ){
         printf("idxA: %d\nidxB: %d\n rootA: %f\nrootB: %f\n", indexA, indexB, rootA, rootB);
     }
-    
 };
+#endif 

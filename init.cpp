@@ -5,21 +5,27 @@
 //  Copyright © 2019 Eduardo Rubio. All rights reserved.
 //
 //  This file be used to initialize the project. It will be in charge of
-//  loading the data and setting all the options 
+//  loading the data and setting all the options
 #include <stdio.h>
 #include "include.cpp"
 #include <fstream>
 #include <sstream>
 #include <algorithm>
 
-/** 
+Spline splineCo;
+Data _data;
+Options options;
+std::vector<Peak> peaks;
+double TMSadjustment;
+
+/**
  * Essentially a stoi / stod function since Mercer won't update to c++11 :'((
  */
-template<typename T> T stringToType( const std::string& str ){ 
-    T toReturn; 
-    std::stringstream ss( str ); 
-    ss >> toReturn; 
-    return toReturn; 
+template<typename T> T stringToType( const std::string& str ){
+    T toReturn;
+    std::stringstream ss( str );
+    ss >> toReturn;
+    return toReturn;
 }
 
 /**
@@ -34,7 +40,7 @@ Options readOptions( const std::string filename ){
         printf("Error opening file \"%s\". Quitting program...\n", filename.c_str());
         exit( 1 );
     }
-
+    
     std::string buffer;
     getline( file, buffer ); options.in_filename = buffer;
     getline( file, buffer ); options.baseline = stringToType<double>(buffer);
@@ -83,5 +89,14 @@ void peakAdjustment( Data& data ){
             maxpeak = data.x[ i ];
     for( int i = 0; i < data.n; i++ )
         data.x[i] = data.x[i] - maxpeak;
-    TMSadjustment = maxpeak; 
+    TMSadjustment = maxpeak;
+}
+
+/**
+ * init:
+ * Encapsulates all the initializing functions to be called from main
+ */
+void init( ){
+    options = readOptions( "nmr.in" );
+    _data = readData( options.in_filename );
 }
