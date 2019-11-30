@@ -38,18 +38,22 @@ void dft( Data& data ){
   std::ofstream sol_file( "sol.dat" ); // setting up ofstream so I can just extract the real component
 
   /* Memory allocation for the needed data structures */
-  gsl_vector_complex *c = NULL; 
-  gsl_vector_complex *y = NULL; 
-  gsl_matrix_complex *Z = NULL; 
+  gsl_vector_complex *C  = NULL; 
+  gsl_vector_complex *Y  = NULL; 
+  gsl_matrix_complex *Z  = NULL; 
+  gsl_vector_complex *GC = NULL; 
 
-  c = gsl_vector_complex_alloc( data.n ); 
-  y = gsl_vector_complex_alloc( data.n ); 
-  Z = gsl_matrix_complex_alloc( data.n, data.n ); 
+  C  = gsl_vector_complex_alloc( data.n ); 
+  Y  = gsl_vector_complex_alloc( data.n ); 
+  GC = gsl_vector_complex_alloc( data.n ); 
+  Z  = gsl_matrix_complex_alloc( data.n, data.n ); 
+
+
 
   /* Set the y vector */
   for( int i = 0; i < data.n; i++ ){ 
     gsl_complex val = gsl_complex_rect( data.y[ i ], 0 );
-    gsl_vector_complex_set( y, i, val );
+    gsl_vector_complex_set( Y, i, val );
   }
 
   /* Set the Z matrix  */
@@ -64,9 +68,7 @@ void dft( Data& data ){
   }
 
   /* Compute c = Z y  and store the DFT coefficients in c */
-  gsl_complex alpha = gsl_complex_rect( 1.0, 1.0 );
-  gsl_complex  beta = gsl_complex_rect( 0.0, 0.0 );
-  gsl_blas_zgemv( CblasNoTrans, alpha, Z, y, beta, c );
+  gsl_blas_zgemv( CblasNoTrans, GSL_COMPLEX_ONE, Z, Y, GSL_COMPLEX_ZERO, C );
 
   /* Allocate space for the NMR filter function: c = G c  */
   gsl_matrix_complex *G = NULL; 
@@ -88,12 +90,12 @@ void dft( Data& data ){
     }
   }
 
-  /* Compute c = G c */
-  gsl_blas_zgemv( CblasNoTrans, alpha, G, c, beta, c );
+  /* Compute (gc) = G c */
+  gsl_blas_zgemv( CblasNoTrans, GSL_COMPLEX_ONE, G, C, GSL_COMPLEX_ZERO, GC );
 
   /* Print out all variables into respective files (temporary -- just used to check things are working properly) */
-  gsl_vector_complex_fprintf(C_FILE,c,"%g");
-  gsl_vector_complex_fprintf(Y_FILE,y,"%g");
+  gsl_vector_complex_fprintf(C_FILE,C,"%g");
+  gsl_vector_complex_fprintf(Y_FILE,Y,"%g");
   gsl_matrix_complex_fprintf(G_FILE,G,"%g");
   gsl_matrix_complex_fprintf(Z_FILE,Z,"%g");
 
@@ -101,10 +103,10 @@ void dft( Data& data ){
   int s; 
   gsl_permutation *p = gsl_permutation_alloc( data.n ); 
   gsl_linalg_complex_LU_decomp( Z, p, &s ); 
-  gsl_linalg_complex_LU_solve( Z, p, c, y ); // Solving for y directly in the form Z y = c 
+  gsl_linalg_complex_LU_solve( Z, p, GC, Y ); // Solving for y directly in the form Z y = (gc) 
 
   /* Print out the filtered y values */
   for( int i = 0; i < data.n; i++ ){ 
-    sol_file << GSL_REAL( gsl_vector_complex_get(y,i) ) << std::endl;
+    sol_file << GSL_REAL( gsl_vector_complex_get(Y,i) ) << std::endl;
   }
 }
