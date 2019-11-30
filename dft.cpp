@@ -26,17 +26,6 @@ void dft( Data& data ){
    * y: the y-values that are to be filtered 
    */
 
-  FILE* C_FILE; 
-  FILE* Z_FILE;
-  FILE* G_FILE; 
-  FILE* Y_FILE; 
-
-  C_FILE = fopen( "c_file.dat", "w"); 
-  Z_FILE = fopen( "z_file.dat", "w");
-  G_FILE = fopen( "g_file.dat", "w"); 
-  Y_FILE = fopen( "y_file.dat", "w"); 
-  std::ofstream sol_file( "sol.dat" ); // setting up ofstream so I can just extract the real component
-
   /* Memory allocation for the needed data structures */
   gsl_vector_complex *C  = NULL; 
   gsl_vector_complex *Y  = NULL; 
@@ -56,9 +45,10 @@ void dft( Data& data ){
 
   /* Set the Z matrix  */
   double sqrt_n = sqrt( data.n ); 
+  double twoPiDivN = -1 * 2 * M_PI / data.n;
   for( int r = 0; r < data.n; r++ ){ 
     for( int c = 0; c < data.n; c++ ){ 
-      double z_val_arg = ( -1 * 2 * M_PI * r * c ) / data.n; 
+      double z_val_arg = twoPiDivN * r * c; 
       gsl_complex z_val = gsl_complex_rect( cos( z_val_arg), sin(z_val_arg)); 
       z_val = gsl_complex_div_real( z_val, sqrt_n );
       gsl_matrix_complex_set( Z, r, c, z_val );
@@ -73,16 +63,17 @@ void dft( Data& data ){
   G = gsl_matrix_complex_alloc( data.n, data.n );
 
   /* Fill out the G matrix */
+  double  num = -1 * 4 * log(2); 
+  double dnum = pow( data.n, 1.5 );
   for( int r = 0; r < data.n; r++ ){ 
     for( int c = 0; c < data.n; c++ ){ 
       gsl_complex g_val;
       /* Dirac Delta Function */
       if( r == c ){
-        double  num = -1 * 4 * log(2) * r * c; 
-        double dnum = pow( data.n, 1.5 );
-        g_val = gsl_complex_rect( exp( num / dnum ), 0.0);
+        double numrc = num * r * c;
+        g_val = gsl_complex_rect( exp( numrc / dnum ), 0.0);
       } else { 
-        g_val = gsl_complex_rect( 0.0, 0.0 );
+        g_val = GSL_COMPLEX_ZERO;
       }
       gsl_matrix_complex_set( G, r, c, g_val );
     }
@@ -90,12 +81,6 @@ void dft( Data& data ){
 
   /* Compute (gc) = G c */
   gsl_blas_zgemv( CblasNoTrans, GSL_COMPLEX_ONE, G, C, GSL_COMPLEX_ZERO, GC );
-
-  /* Print out all variables into respective files (temporary -- just used to check things are working properly) */
-  gsl_vector_complex_fprintf(C_FILE,C,"%g");
-  gsl_vector_complex_fprintf(Y_FILE,Y,"%g");
-  gsl_matrix_complex_fprintf(G_FILE,G,"%g");
-  gsl_matrix_complex_fprintf(Z_FILE,Z,"%g");
 
   /* Ready to solve (temporary -- just here for now to check solution works)*/
   int s; 
@@ -105,7 +90,6 @@ void dft( Data& data ){
 
   /* Print out the filtered y values */
   for( int i = 0; i < data.n; i++ ){ 
-    sol_file << GSL_REAL( gsl_vector_complex_get(Y,i) ) << std::endl;
     data.y[ i ] = GSL_REAL( gsl_vector_complex_get(Y,i) ); 
   }
 }
