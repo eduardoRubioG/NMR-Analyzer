@@ -48,8 +48,6 @@ void dft( Data& data ){
   GC = gsl_vector_complex_alloc( data.n ); 
   Z  = gsl_matrix_complex_alloc( data.n, data.n ); 
 
-
-
   /* Set the y vector */
   for( int i = 0; i < data.n; i++ ){ 
     gsl_complex val = gsl_complex_rect( data.y[ i ], 0 );
@@ -108,5 +106,6 @@ void dft( Data& data ){
   /* Print out the filtered y values */
   for( int i = 0; i < data.n; i++ ){ 
     sol_file << GSL_REAL( gsl_vector_complex_get(Y,i) ) << std::endl;
+    data.y[ i ] = GSL_REAL( gsl_vector_complex_get(Y,i) ); 
   }
 }

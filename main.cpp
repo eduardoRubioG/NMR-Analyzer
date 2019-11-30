@@ -33,8 +33,10 @@ int main(int argc, const char * argv[]) {
     peakAdjustment(_data); //good
     
     // Filter the data in accordance to the user specified options
-    nmrFilter(_data, options); //good
+    // nmrFilter(_data, options); //good
+    std::cout << "Running the DFT filter" << std::endl; 
     dft( _data );
+    std::cout << "Completed the DFT filter" << std::endl; 
     
     //Export filtered data to "filter.txt"
     dataToFile("filter.dat", _data); //good
