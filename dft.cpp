@@ -30,13 +30,12 @@ void dft( Data& data ){
   FILE* Z_FILE;
   FILE* G_FILE; 
   FILE* Y_FILE; 
-  FILE* SOL; 
 
   C_FILE = fopen( "c_file.dat", "w"); 
   Z_FILE = fopen( "z_file.dat", "w");
   G_FILE = fopen( "g_file.dat", "w"); 
   Y_FILE = fopen( "y_file.dat", "w"); 
-  SOL_FILE = fopen( "sol.dat", "w" );
+  std::ofstream sol_file( "sol.dat" ); // setting up ofstream so I can just extract the real component
 
   /* Memory allocation for the needed data structures */
   gsl_vector_complex *c = NULL; 
@@ -105,5 +104,7 @@ void dft( Data& data ){
   gsl_linalg_complex_LU_solve( Z, p, c, y ); // Solving for y directly in the form Z y = c 
 
   /* Print out the filtered y values */
-  gsl_vector_complex_fprintf(SOL_FILE,y,"%g");
+  for( int i = 0; i < data.n; i++ ){ 
+    sol_file << GSL_REAL( gsl_vector_complex_get(y,i) ) << std::endl;
+  }
 }
