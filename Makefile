@@ -1,5 +1,5 @@
 make: 
-	c++ main.cpp -lm -lGSL -lBLAS
+	c++ main.cpp -lm -lgsl -lblas
 
 clean: 
 	rm a.out *.dat
