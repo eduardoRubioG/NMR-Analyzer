@@ -16,6 +16,7 @@
 #include "spline.cpp"
 #include "roots.cpp"
 #include "integration.cpp"
+#include "dft.cpp"
 //using namespace std;
 int main(int argc, const char * argv[]) {
     
@@ -33,9 +34,10 @@ int main(int argc, const char * argv[]) {
     
     // Filter the data in accordance to the user specified options
     nmrFilter(_data, options); //good
+    dft( _data );
     
     //Export filtered data to "filter.txt"
-    dataToFile("filter.txt", _data); //good
+    dataToFile("filter.dat", _data); //good
     
     // Generate the spline coefficients and export spline curve data to "spline.dat"
     spline(_data, splineCo);
@@ -51,7 +53,7 @@ int main(int argc, const char * argv[]) {
     // Print out program findings
     options.time = clock() - options.time;
     outputAnalysis();
-    system("cat analysis.txt");
+    system("cat analysis.dat");
     
     return 0;
 }
