@@ -30,27 +30,27 @@ int main(int argc, const char * argv[]) {
     options.time = clock( );
     
     // Adjust the data for the TMS peak
-    peakAdjustment(_data); //good
+    peakAdjustment(_data); 
     
     // Filter the data in accordance to the user specified options
-    // nmrFilter(_data, options); //good
+    // nmrFilter(_data, options); 
     std::cout << "Running the DFT filter" << std::endl; 
     dft( _data );
     std::cout << "Completed the DFT filter" << std::endl; 
     
     //Export filtered data to "filter.txt"
-    dataToFile("filter.dat", _data); //good
+    dataToFile("filter.dat", _data); 
     
     // Generate the spline coefficients and export spline curve data to "spline.dat"
     spline(_data, splineCo);
-    populateSpline(_data, splineCo); // good
+    populateSpline(_data, splineCo); 
     
     // Find all intersections the spline curve has with the baseline and store peaks
-    findIntersections(splineCo);// good 
+    findIntersections(splineCo);
     
     // Integrate the peaks and compute hydrogen counts
-    integratePeaks(); // good ?
-    findHydrogens(); // good ? 
+    integratePeaks(); 
+    findHydrogens();
     
     // Print out program findings
     options.time = clock() - options.time;
