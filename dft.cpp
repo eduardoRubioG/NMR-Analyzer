@@ -36,7 +36,7 @@ void dft( Data& data ){
   Z_FILE = fopen( "z_file.dat", "w");
   G_FILE = fopen( "g_file.dat", "w"); 
   Y_FILE = fopen( "y_file.dat", "w"); 
-  SOL = fopen( "sol.dat", "w" );
+  SOL_FILE = fopen( "sol.dat", "w" );
 
   /* Memory allocation for the needed data structures */
   gsl_vector_complex *c = NULL; 
@@ -60,7 +60,6 @@ void dft( Data& data ){
       double z_val_arg = ( -1 * 2 * M_PI * r * c ) / data.n; 
       gsl_complex z_val = gsl_complex_rect( cos( z_val_arg), sin(z_val_arg)); 
       z_val = gsl_complex_div_real( z_val, sqrt_n );
-      // printf("%d,%d: %g + i%g\n", r,c, GSL_REAL(z_val),GSL_IMAG(z_val));
       gsl_matrix_complex_set( Z, r, c, z_val );
     }
   }
@@ -73,9 +72,12 @@ void dft( Data& data ){
   /* Allocate space for the NMR filter function: c = G c  */
   gsl_matrix_complex *G = NULL; 
   G = gsl_matrix_complex_alloc( data.n, data.n );
+
+  /* Fill out the G matrix */
   for( int r = 0; r < data.n; r++ ){ 
     for( int c = 0; c < data.n; c++ ){ 
       gsl_complex g_val;
+      /* Dirac Delta Function */
       if( r == c ){
         double  num = -1 * 4 * log(2) * r * c; 
         double dnum = pow( data.n, 1.5 );
@@ -87,19 +89,21 @@ void dft( Data& data ){
     }
   }
 
+  /* Compute c = G c */
   gsl_blas_zgemv( CblasNoTrans, alpha, G, c, beta, c );
 
-  /* Print out all variables into respective files  */
+  /* Print out all variables into respective files (temporary -- just used to check things are working properly) */
   gsl_vector_complex_fprintf(C_FILE,c,"%g");
   gsl_vector_complex_fprintf(Y_FILE,y,"%g");
   gsl_matrix_complex_fprintf(G_FILE,G,"%g");
   gsl_matrix_complex_fprintf(Z_FILE,Z,"%g");
 
-  /* Ready to solve  */
+  /* Ready to solve (temporary -- just here for now to check solution works)*/
   int s; 
   gsl_permutation *p = gsl_permutation_alloc( data.n ); 
   gsl_linalg_complex_LU_decomp( Z, p, &s ); 
   gsl_linalg_complex_LU_solve( Z, p, c, y ); // Solving for y directly in the form Z y = c 
 
-  gsl_vector_complex_fprintf(SOL,y,"%g");
+  /* Print out the filtered y values */
+  gsl_vector_complex_fprintf(SOL_FILE,y,"%g");
 }
