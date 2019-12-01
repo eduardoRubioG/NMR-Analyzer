@@ -27,7 +27,7 @@ int main(int argc, const char * argv[]) {
     options.time = clock( );
     
     // Adjust the data for the TMS peak
-    peakAdjustment(_data); 
+    //peakAdjustment(_data); 
     
     // Filter the data in accordance to the user specified options
     printf("Filtering data...\n");
