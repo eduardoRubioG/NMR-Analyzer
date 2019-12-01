@@ -5,7 +5,6 @@
 //  Created by Eduardo Rubio on 10/17/19.
 //  Copyright © 2019 Eduardo Rubio. All rights reserved.
 //
-
 #include <iostream>
 #include "struct.cpp"
 #include "include.cpp"
@@ -16,8 +15,6 @@
 #include "spline.cpp"
 #include "roots.cpp"
 #include "integration.cpp"
-#include "dft.cpp"
-//using namespace std;
 int main(int argc, const char * argv[]) {
     
     system( "clear" );
@@ -33,10 +30,9 @@ int main(int argc, const char * argv[]) {
     peakAdjustment(_data); 
     
     // Filter the data in accordance to the user specified options
-    // nmrFilter(_data, options); 
-    std::cout << "Running the DFT filter" << std::endl; 
-    dft( _data );
-    std::cout << "Completed the DFT filter" << std::endl; 
+    printf("Filtering data...\n");
+    nmrFilter(_data, options); 
+    printf("Filtering complete!\n");
     
     //Export filtered data to "filter.txt"
     dataToFile("filter.dat", _data); 
@@ -52,7 +48,7 @@ int main(int argc, const char * argv[]) {
     integratePeaks(); 
     findHydrogens();
     
-    // Print out program findings
+    // Output results
     options.time = clock() - options.time;
     outputAnalysis();
     system("cat analysis.dat");

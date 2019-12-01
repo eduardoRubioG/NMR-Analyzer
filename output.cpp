@@ -84,14 +84,22 @@ void outputAnalysis( ) {
         case 0: file << "No Data Filtering" << std::endl; break;
         case 1: file << "Boxcar Filtering" << std::endl; break;
         case 2: file << "Savitzky-Golay Filtering" << std::endl; break;
+        case 3: file << "Discrete Fourier Transform Filter" << std::endl; break; 
     }
-    file << "Filter Size (if applicable):\t" << options.filterSize << std::endl;
-    file << "Filter Passes (if applicable):\t" << options.filterPasses << std::endl;
+    if( options.filterType == 3 ){ 
+        file << "DFT Recovery Method: ";
+        switch (options.filterSize){
+            case 0: file << "Inverse Solver" << std::endl; break; 
+            case 1: file << "Direct Solver" << std::endl; break; 
+            case 2: file << "Iterative Sovler" << std::endl; break; 
+        }
+    } else file << "Filter Size (if applicable):\t" << options.filterSize << std::endl;
+    if( options.filterType != 0 && options.filterType != 3 ) file << "Filter Passes (if applicable):\t" << options.filterPasses << std::endl;
     file << std::endl;
     file << "I N T E G R A T I O N  M E T H O D" << std::endl;
     file << "==================================" << std::endl;
     switch ( options.integrationType ) {
-        case 0: file << "Apative Quadrature" << std::endl; break;
+        case 0: file << "Adaptive Quadrature" << std::endl; break;
         case 1: file << "Romrberg's Method" << std::endl; break;
         case 2: file << "Gauss-Laguerre Method" << std::endl; break;
         case 3: file << "Composite Simpson's Method" << std::endl; break;
@@ -122,5 +130,5 @@ void outputAnalysis( ) {
         printElement(tmp.hydrogens, 8, ' ', file);
         file << std::endl;
     }
-    file << std::fixed << "\nAnalysis took " << ((float)options.time)/CLOCKS_PER_SEC << " seconds\n" << std::endl;
+    file << std::setprecision(6) << "\nAnalysis took " << ((float)options.time)/CLOCKS_PER_SEC << " seconds\n" << std::endl;
 }
