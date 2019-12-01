@@ -89,14 +89,7 @@ void dft( Data& data ){
 
   switch (options.filterSize){
     case 0: // inverse recovery 
-      printf("BEFORE\n");
-      for( int i = 0; i < 10; i++ ) 
-        printf("%g + i%g\n",GSL_REAL(gsl_vector_complex_get( Y, i )), GSL_IMAG(gsl_vector_complex_get( Y, i )));
-      printf("okok\n");
-      dft_inverse_solver( Z, C, Y, data.n );
-      printf("AFTER\n");
-      for( int i = 0; i < 10; i++ )
-        printf("%g + i%g\n",GSL_REAL(gsl_vector_complex_get( Y, i )), GSL_IMAG(gsl_vector_complex_get( Y, i )));
+      dft_inverse_solver( Z, GC, Y, data.n );
       break; 
     case 1: // direct recovery 
       dft_direct_solver( Z, GC, Y, data.n );
@@ -134,41 +127,25 @@ void dft_direct_solver( gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vecto
   gsl_permutation_free(p);
 }
 
-void dft_inverse_solver( gsl_matrix_complex* Z, gsl_vector_complex* C, gsl_vector_complex* Y, const int& n ){ 
-  printf( "Doing the inverse\n");
-  gsl_matrix_complex* invZ = gsl_matrix_complex_alloc( n, n ); 
-  invZ = invert_matrix_complex( Z, n ); // Defined below
-  gsl_blas_zgemv( CblasNoTrans, GSL_COMPLEX_ONE, invZ, C, GSL_COMPLEX_ZERO, Y );
-}
-
-/**
- * invert_matrix_complex: 
- * INPUT: 
- *   matrix: a complex matrix pointer that you wish to invert 
- *        n: int of the dimensions needed 
- * OUTPUT: 
- *  Returns a complex matrix pointer that is the inverse of the matrix argument 
- */
-gsl_matrix_complex* invert_matrix_complex(gsl_matrix_complex* matrix, const int& n ){  
-
 /** 
- * DON"T DO IT LIKE THIS
+ * dft_inverse_solver: 
+ * Solve the form y = (GC) Z^-1 
  * 
- * Find the complex conjugate of all Z(i,j) instead of doing an LU factorization + decomposition
+ * INPUT:
+ *  Z: complex matrix pointer to the Z Fourier matrix 
+ *  GC: complex vector pointer to the Fourier coefficients vector
+ *  Y: complex vector pointer to the Y values we are solving for 
+ *  n: integer of the dimensions needed
  */
-
-
-  // Compute the LU decomposition of this matrix
-  int s;
-  gsl_permutation *p = gsl_permutation_alloc( n );
-  gsl_matrix_complex *tmp = gsl_matrix_complex_alloc( n, n ); 
-  gsl_matrix_complex_memcpy( tmp, matrix );
-  gsl_linalg_complex_LU_decomp(tmp, p, &s);
-
-  // Compute the  inverse using the LU decomposition
-  gsl_matrix_complex *inv = gsl_matrix_complex_alloc(n, n);
-  gsl_linalg_complex_LU_invert(tmp, p, inv);
-  gsl_permutation_free(p);
-
-  return inv;
+void dft_inverse_solver( gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vector_complex* Y, const int& n ){ 
+  gsl_matrix_complex* invZ = gsl_matrix_complex_alloc( n, n );
+  gsl_matrix_complex_memcpy( invZ, Z );
+  for( int r = 0; r < n; r++ ){
+    for( int c = 0; c < n; c++ ){
+      gsl_complex CJ = gsl_matrix_complex_get( invZ, r, c );
+      CJ = gsl_complex_conjugate( CJ );
+      gsl_matrix_complex_set( invZ, r, c, CJ );
+    }
+  }
+  gsl_blas_zgemv( CblasNoTrans, GSL_COMPLEX_ONE, invZ, GC, GSL_COMPLEX_ZERO, Y );
 }
