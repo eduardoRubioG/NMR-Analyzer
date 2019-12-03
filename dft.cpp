@@ -11,7 +11,7 @@
 #include <gsl/gsl_complex_math.h>
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_blas.h>
-#include <math.h> 
+// #include <math.h> 
 #include "include.cpp"
 #include "globals.h"
 
@@ -19,6 +19,8 @@ gsl_matrix_complex* invert_matrix_complex( gsl_matrix_complex *matrix, const int
 void dft_direct_solver( gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vector_complex* Y, const int& n );
 void dft_iterative_solver( );
 void dft_inverse_solver( gsl_matrix_complex* Z, gsl_vector_complex* C, gsl_vector_complex* Y, const int& n );
+void dft_iterative_solver( Data& data, const int& N, gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vector_complex* Y, const double& TOL, const int& MAX );
+double two_vector_complex_norm( gsl_vector_complex* A, gsl_vector_complex* B, const int& N );
 
 void dft( Data& data ){ 
   /** 
@@ -95,6 +97,7 @@ void dft( Data& data ){
       dft_direct_solver( Z, GC, Y, data.n );
       break; 
     case 2: // iterative recovery 
+      dft_iterative_solver( data, data.n, Z, GC, Y, options.tol, 200 );
       break; 
 
     default: 
@@ -107,6 +110,20 @@ void dft( Data& data ){
   for( int i = 0; i < data.n; i++ ){ 
     data.y[ i ] = GSL_REAL( gsl_vector_complex_get(Y,i) ); 
   }
+
+gsl_vector_complex* A = gsl_vector_complex_alloc( 2 );
+gsl_vector_complex* B = gsl_vector_complex_alloc( 2 );
+gsl_complex a0 = gsl_complex_rect( 3.83, 6 );
+gsl_complex a1 = gsl_complex_rect( 4.71, -0.67 );
+gsl_complex b0 = gsl_complex_rect( 7.766, .001 );
+gsl_complex b1 = gsl_complex_rect( .07355, 702.3 );
+gsl_vector_complex_set( A, 0, a0 );
+gsl_vector_complex_set( A, 1, a1 );
+gsl_vector_complex_set( B, 0, b0 );
+gsl_vector_complex_set( B, 1, b1 );
+printf("TEST NORM: %f\n",two_vector_complex_norm( A, B, 2 ));
+
+
 }
 
 /** 
@@ -148,4 +165,59 @@ void dft_inverse_solver( gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vect
     }
   }
   gsl_blas_zgemv( CblasNoTrans, GSL_COMPLEX_ONE, invZ, GC, GSL_COMPLEX_ZERO, Y );
+}
+
+double two_vector_complex_norm( gsl_vector_complex* A, gsl_vector_complex* B, const int& N ){ 
+  double a_norm, b_norm, norm = __DBL_MIN__; 
+  for( int i = 0; i < N; i++ ){
+    a_norm = 0.0; 
+    b_norm = 0.0; 
+    a_norm = pow(GSL_REAL(gsl_vector_complex_get(A,i)),2) + pow(GSL_IMAG(gsl_vector_complex_get(A,i)),2);
+    b_norm = pow(GSL_REAL(gsl_vector_complex_get(B,i)),2) + pow(GSL_IMAG(gsl_vector_complex_get(B,i)),2);
+    a_norm = sqrt( a_norm );
+    // std::cout << std::setprecision(16) << "flag: " << a_norm << std::endl; 
+    b_norm = sqrt( b_norm );
+    norm = std::max( norm, fabs( a_norm - b_norm ));
+  }
+  return norm; 
+}
+
+void dft_iterative_solver( Data& data, const int& N, gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vector_complex* Y, const double& TOL, const int& MAX ){ 
+  // Step 1 
+  gsl_vector_complex* XO = gsl_vector_complex_alloc( N );
+  gsl_vector_complex_set_zero( XO );
+  int k = 0;
+  // Step 2 
+  while( k < MAX ){ 
+    gsl_vector_complex* x  = gsl_vector_complex_alloc( N );
+    gsl_complex sum; 
+    // Step 3 
+    for( int i = 0; i < N; i++ ){ 
+      sum = gsl_complex_rect( 0.0, 0.0 );
+      for( int j = 0; j < N; j++ ){
+        if( j != i ){
+          sum = gsl_complex_mul( gsl_matrix_complex_get(Z,i,j) , gsl_vector_complex_get(XO,j));
+          sum = gsl_complex_mul_real( sum , -1.0 );
+          sum = gsl_complex_mul_imag( sum , -1.0 );
+        }
+      }
+      sum = gsl_complex_add( sum, gsl_vector_complex_get(GC,i) );
+      sum = gsl_complex_div( sum, gsl_matrix_complex_get(Z,i,i) );
+      if( i < 10 ) printf("Setting x[%d] = %g + i%g\n",i,GSL_REAL(sum),GSL_IMAG(sum));
+      gsl_vector_complex_set( x, i, sum );
+    }
+    // Step 4 
+    if( two_vector_complex_norm( x, XO, N ) < TOL ){ 
+      std::cout << std::setprecision(16) << "Completeted iterative DFT with " << k << " iterations and "
+      << two_vector_complex_norm( x, XO, N ) << " norm with a tolerance of "
+      << TOL << std::endl; 
+      gsl_vector_complex_memcpy( x, Y );
+      break; 
+    }
+    // Step 5 
+    k++; 
+    // Step 6 
+    gsl_vector_complex_memcpy(XO,x);
+  }
+  printf("Max iterations reached for the iterative method\n");
 }
