@@ -12,9 +12,12 @@
 /**
  * General include headers that will be needed throughout the program 
  */
+#include <iostream>
 #include <math.h>
+#include <algorithm> 
 #include <vector>
 #include <limits>
 #include <iomanip>
 #include <time.h> 
+#include <fstream> 
 #include <sstream> 

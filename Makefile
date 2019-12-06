@@ -1,8 +1,8 @@
 make: 
-	c++ main.cpp -lm
+	c++ main.cpp -lm -lgsl -lblas
 
 clean: 
-	rm a.out analysis.txt filter.txt roots.dat spline.dat
+	rm a.out *.dat
 
 run: 
-	./a.out dat1.txt
+	./a.out

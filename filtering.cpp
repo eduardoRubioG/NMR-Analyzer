@@ -7,7 +7,7 @@
 //
 //  This file is where the filtering functions will live
 #include <stdio.h>
-
+#include "dft.cpp"
 /**
  * Implementation of the Boxcar data filter. Pass in the Data object as well as the filter size
  */
@@ -64,8 +64,10 @@ void savitzkyGolay( Data& data, int SG[], int C, int size ){
 void nmrFilter( Data& data, const Options& options ){
     int size = options.filterSize;
     switch (options.filterType) {
-            //Savitzky-Golay
-        case 2:
+        case 3: // DFT 
+            dft( data );
+            break;
+        case 2: //Savitzky-Golay
             switch (size) {
                 case 5  :
                     for( int i = 0; i < options.filterPasses; i++ )
@@ -84,15 +86,14 @@ void nmrFilter( Data& data, const Options& options ){
                     break;
             }
             break;
-            //Boxcar
-        case 1:
+        case 1: //Boxcar
             if( size == 0 ) printf("Boxcar method with filter size 0 requested; Filtering is, in essence, off");
             for( int i = 0; i < options.filterPasses; i++ )
                 boxcar(data, size);
             break;
-            // Invalid option
-        default :
-            printf("User has requested no filtering");
+        case 0: break; // No filter 
+        default : // Invalid option
+            printf("Error: Invalid filtering option requested\n");
             break;
     }
 }
