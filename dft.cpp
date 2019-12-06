@@ -19,7 +19,7 @@ gsl_matrix_complex* invert_matrix_complex( gsl_matrix_complex *matrix, const int
 void dft_direct_solver( gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vector_complex* Y, const int& n );
 void dft_iterative_solver( );
 void dft_inverse_solver( gsl_matrix_complex* Z, gsl_vector_complex* C, gsl_vector_complex* Y, const int& n );
-void dft_iterative_solver( Data& data, const int& N, gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vector_complex* Y, const double& TOL, const int& MAX );
+void dft_iterative_solver( const int& N, gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vector_complex* Y, const double& TOL, const int& MAX );
 double two_vector_complex_norm( gsl_vector_complex* A, gsl_vector_complex* B, const int& N );
 
 void dft( Data& data ){ 
@@ -97,7 +97,7 @@ void dft( Data& data ){
       dft_direct_solver( Z, GC, Y, data.n );
       break; 
     case 2: // iterative recovery 
-      dft_iterative_solver( data, data.n, Z, GC, Y, options.tol, 30 );
+      dft_iterative_solver( data.n, Z, GC, Y, options.tol, 30 );
       break; 
 
     default: 
@@ -138,7 +138,7 @@ void dft_direct_solver( gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vecto
  *  Z: complex matrix pointer to the Z Fourier matrix 
  *  GC: complex vector pointer to the Fourier coefficients vector
  *  Y: complex vector pointer to the Y values we are solving for 
- *  n: integer of the dimensions needed
+ *  N: integer of the dimensions needed
  */
 void dft_inverse_solver( gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vector_complex* Y, const int& n ){ 
   gsl_matrix_complex* invZ = gsl_matrix_complex_alloc( n, n );
@@ -153,6 +153,15 @@ void dft_inverse_solver( gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vect
   gsl_blas_zgemv( CblasNoTrans, GSL_COMPLEX_ONE, invZ, GC, GSL_COMPLEX_ZERO, Y );
 }
 
+/** 
+ * two_vector_complex_norm: 
+ * Find the infite norm difference between two complex valued vectors 
+ * 
+ * INPUT: 
+ *  A: a complex valued vector of size N 
+ *  B: a complex valued vector of size N 
+ *  N: integer defining size of vectors
+ */
 double two_vector_complex_norm( gsl_vector_complex* A, gsl_vector_complex* B, const int& N ){ 
   double a_norm, b_norm, norm = 0.0; 
   for( int i = 0; i < N; i++ ){
@@ -167,7 +176,22 @@ double two_vector_complex_norm( gsl_vector_complex* A, gsl_vector_complex* B, co
   return norm; 
 }
 
-void dft_iterative_solver( Data& data, const int& N, gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vector_complex* Y, const double& TOL, const int& MAX ){ 
+/**
+ * dft_iterative_solver: 
+ * Solve the form Z y = C
+ * 
+ * Employ the Jacobi iterative method for solving linear systems. If the iteration max is reached without the infinite norm differences being
+ * smaller than the given tolerance, then we default to the inverse solver method. 
+ * 
+ * INPUT: 
+ *   N: integer of the dimensions needed
+ *   Z: complex matrix pointer to the Z Fourier matrix 
+ *  GC: complex vector pointer to the Fourier coefficients vector
+ *   Y: complex vector pointer to the Y values we are solving for 
+ * TOL: The user defined tolerance 
+ * MAX: Max iterations 
+ */
+void dft_iterative_solver( const int& N, gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vector_complex* Y, const double& TOL, const int& MAX ){ 
   // Step 1 
   bool ok = false; 
   gsl_vector_complex* XO = gsl_vector_complex_calloc( N );
