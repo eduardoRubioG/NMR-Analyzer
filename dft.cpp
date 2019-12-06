@@ -97,7 +97,7 @@ void dft( Data& data ){
       dft_direct_solver( Z, GC, Y, data.n );
       break; 
     case 2: // iterative recovery 
-      dft_iterative_solver( data, data.n, Z, GC, Y, options.tol, 200 );
+      dft_iterative_solver( data, data.n, Z, GC, Y, options.tol, 30 );
       break; 
 
     default: 
@@ -110,21 +110,6 @@ void dft( Data& data ){
   for( int i = 0; i < data.n; i++ ){ 
     data.y[ i ] = GSL_REAL( gsl_vector_complex_get(Y,i) ); 
   }
-
-// gsl_vector_complex* A = gsl_vector_complex_alloc( 2 );
-// gsl_vector_complex* B = gsl_vector_complex_alloc( 2 );
-// gsl_complex a0 = gsl_complex_rect( 3.83, 6 );
-// gsl_complex a1 = gsl_complex_rect( 4.71, -0.67 );
-// gsl_complex b0 = gsl_complex_rect( 7.766, .001 );
-// gsl_complex b1 = gsl_complex_rect( .07355, 702.3 );
-// gsl_vector_complex_set( A, 0, a0 );
-// gsl_vector_complex_set( A, 1, a1 );
-// gsl_vector_complex_set( B, 0, b0 );
-// gsl_vector_complex_set( B, 1, b1 );
-// printf("TEST NORM: %f\n",two_vector_complex_norm( A, B, 2 ));
-// printf("TEST2: A: %f, B: %f, A-B: %f\n",gsl_blas_dznrm2(A), gsl_blas_dznrm2(B), gsl_blas_dznrm2(A)-gsl_blas_dznrm2(B));
-
-
 }
 
 /** 
@@ -184,7 +169,6 @@ double two_vector_complex_norm( gsl_vector_complex* A, gsl_vector_complex* B, co
 
 void dft_iterative_solver( Data& data, const int& N, gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vector_complex* Y, const double& TOL, const int& MAX ){ 
   // Step 1 
-  std::cout << "YAY DFT ITERATIVE" << std::endl;
   bool ok = false; 
   gsl_vector_complex* XO = gsl_vector_complex_calloc( N );
   gsl_vector_complex* x  = gsl_vector_complex_alloc( N );
@@ -195,28 +179,18 @@ void dft_iterative_solver( Data& data, const int& N, gsl_matrix_complex* Z, gsl_
     // Step 3 
     for( int i = 0; i < N; i++ ){ 
       sum = gsl_complex_rect( 0.0, 0.0 );
-      for( int j = 0; j < N; j++ ){
-        if( j != i ){
-          // sum = gsl_complex_mul( gsl_matrix_complex_get(Z,i,j) , gsl_vector_complex_get(XO,j));
+      for( int j = 0; j < N; j++ )
+        if( j != i )
           sum = gsl_complex_add( sum, gsl_complex_mul( gsl_matrix_complex_get(Z,i,j) , gsl_vector_complex_get(XO,j)));
-        }
-      }
       sum = gsl_complex_mul_real( sum , -1.0 );
       sum = gsl_complex_mul_imag( sum , -1.0 );
       sum = gsl_complex_add( sum, gsl_vector_complex_get(GC,i) );
       sum = gsl_complex_div( sum, gsl_matrix_complex_get(Z,i,i) );
-          // printf("SUM @ iteration %d: %g + i%g\n",k,GSL_REAL(sum),GSL_IMAG(sum));
-      // if( i < 10 ) printf("Setting x[%d] = %g + i%g\n",i,GSL_REAL(sum),GSL_IMAG(sum));
       gsl_vector_complex_set( x, i, sum );
     }
     // Step 4 
-    if( gsl_vector_complex_equal( x, XO ) ) printf("At iteration %d x and XO are equal\n", k);
-    printf(">> %d << norm ---->> %f\n",k, two_vector_complex_norm( x, XO, N ));
     if( two_vector_complex_norm( x, XO, N ) < TOL ){ 
       ok = !ok ;
-      std::cout << std::setprecision(16) << "Completeted iterative DFT with " << k << " iterations and "
-      << two_vector_complex_norm( x, XO, N ) << " norm with a tolerance of "
-      << TOL << std::endl; 
       gsl_vector_complex_memcpy( x, Y );
       break; 
     }
@@ -225,5 +199,8 @@ void dft_iterative_solver( Data& data, const int& N, gsl_matrix_complex* Z, gsl_
     // Step 6 
     gsl_vector_complex_memcpy(XO,x);
   }
-  if( !ok ) printf("Max iterations reached for the iterative method\n");
+  if( !ok ) {
+    printf("Max iterations reached for the iterative method. Defaulting to the inverse method instead...\n");
+    dft_inverse_solver( Z, GC, Y, N );
+  }
 }

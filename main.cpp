@@ -25,7 +25,7 @@ int main(int argc, const char * argv[]) {
     
     // Note time in order to calculate analysis time
     options.time = clock( );
-    
+
     // Adjust the data for the TMS peak
     peakAdjustment(_data); 
     
