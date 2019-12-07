@@ -16,11 +16,6 @@
  */
 void spline( const Data& data, Spline& spline ){
     int n = data.n;
-    //double h[ n ];
-    //double alpha[ n ];
-    //double l[ n ];
-    //double mu[ n ];
-    //double z[ n ];
     double* h = new double[ n ];
     double* alpha = new double[ n ];
     double* l = new double[ n ];
