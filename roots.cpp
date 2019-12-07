@@ -43,7 +43,7 @@ double bisection( double a, double b, double tol, int n, const Spline spline, in
         }
     }
     printf("Error: No root found in index %d\n", idx );
-    return NULL;
+    return 0;
 }
 
 /**

@@ -106,10 +106,17 @@ void dft( Data& data ){
       break; 
   }
 
-  /* Print out the filtered y values */
+  /* Extract the filtered y values */
   for( int i = 0; i < data.n; i++ ){ 
     data.y[ i ] = GSL_REAL( gsl_vector_complex_get(Y,i) ); 
   }
+
+  /* Clean up */
+  gsl_matrix_complex_free( Z );
+  gsl_matrix_complex_free( G );
+  gsl_vector_complex_free( C );
+  gsl_vector_complex_free( Y );
+  gsl_vector_complex_free( GC );
 }
 
 /** 
@@ -151,6 +158,7 @@ void dft_inverse_solver( gsl_matrix_complex* Z, gsl_vector_complex* GC, gsl_vect
     }
   }
   gsl_blas_zgemv( CblasNoTrans, GSL_COMPLEX_ONE, invZ, GC, GSL_COMPLEX_ZERO, Y );
+  gsl_matrix_complex_free( invZ );
 }
 
 /** 
